@@ -1,0 +1,71 @@
+package com.ttu.bank.client;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import com.ttu.bank.connector.Connector;
+
+//Creating thread environment by implementing Runnable interface
+public class Client implements Runnable {
+	
+	//Creating instance of Connector class
+	private Connector connector;
+	private String input;
+
+	//Constructor with Connector object as argument
+	public Client(Connector connector) {
+		this.connector = connector;
+	}
+
+	public void showInstructions() {
+		System.out.println("+============================================================================+");
+		System.out.println("|	***                                                                 ***  |");
+		System.out.println("|	***          	WELCOME TO MSU BANK                                 ***  |");
+		System.out.println("|	***                                                                 ***  |");
+		System.out.println("+============================================================================+");
+		System.out.println("|					Choose your Transaction									 |");
+		System.out.println("| 			Please press the corresponding number							 |");
+		System.out.println("| 1.	Check Balance	                                                     |");
+		System.out.println("| 2.	Transfer 	                                                         |");
+		System.out.println("| 3.	Withdraw	                                                         |");
+		System.out.println("| 4.	Deposit	                                                         |");
+		System.out.println("+============================================================================+");
+	}
+
+	public void readData() {
+		//Reads texts from Character-input Stream
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			input = br.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void run() {
+		
+		while (true) {
+			//Gives view in the console
+			showInstructions();
+			//Checks if isClientSignal method from Connector class returns true
+			if (connector.isClientSignal()) {
+				readData();
+				//Passing user input to the String Variable
+				String msg = connector.send(input);
+				
+				if(msg.equals("2")) {
+					System.out.println("Thank you for using MSU bank ATM. Have a nice day.");
+					break;
+				}
+			}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				//To know the root cause of the exception
+				e.printStackTrace();
+			}
+		}
+	}
+}
