@@ -1,0 +1,16 @@
+package com.ttu.bank.server;
+
+public interface Account {
+	int accountNumber = 0;
+	Float balance = 0.0f;
+	
+	//Default method implementations of interface
+	
+	public void open(int accountNumber);
+	public void credit(Float amount);
+	void debit(int accountNum, Float amount);
+	int getAccountNumber(int cardId);
+	Float readBalance(int cardId);
+	void deposit(int accountNum, Float amount);
+	
+}
