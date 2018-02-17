@@ -1,0 +1,87 @@
+package com.ttu.bank.connector;
+
+import java.util.ArrayDeque;
+import java.util.Queue;
+
+public class Connector{
+	//Java Queue interface and ArrayDeque implementation 
+	private Queue<String> messageBuffer = new ArrayDeque<>();
+	private Queue<String> responseBuffer = new ArrayDeque<>();
+	
+	private boolean isProcessDone = false;
+
+	private boolean messageBufferFull = false;
+	private boolean responseBufferFull = false;
+	private boolean clientSignal = true;
+	private boolean serverSignal = false;
+	
+	//Creating setter and Getter methods
+	//Creating synchronized methods to maintain thread safe
+	public synchronized boolean isClientSignal() {
+		return clientSignal;
+	}
+
+	public synchronized void setClientSignal(boolean clientSignal) {
+		this.clientSignal = clientSignal;
+	}
+
+	public synchronized boolean isServerSignal() {
+		return serverSignal;
+	}
+
+	public synchronized void setServerSignal(boolean serverSignal) {
+		this.serverSignal = serverSignal;
+	}
+	
+	public String send(String message) {
+		if (!messageBufferFull) {
+			messageBuffer.add(message);
+			messageBufferFull = true;
+			serverSignal = true;
+			/*System.out.println("Send server signal " + serverSignal);
+			System.out.println("received msg from client " + message);*/
+		}
+		while (!responseBufferFull) {
+			try {
+				//ystem.out.println("response buffer is not full.");
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		responseBufferFull = false;
+		clientSignal = true;
+		//System.out.println("Send client Signal " + clientSignal);
+		String outputMsg =  responseBuffer.poll();
+		//System.out.println("sending msg to client." + outputMsg );
+		return outputMsg;
+	}
+
+	public String receive() {
+		messageBufferFull = false;
+		return messageBuffer.poll();
+	}
+
+	public void reply(String response) {
+		responseBuffer.add(response);
+		responseBufferFull = true;
+		clientSignal = true;
+	}
+
+	public boolean isMessage() {
+		if (messageBuffer.isEmpty())
+			return false;
+		else
+			return true;
+	}
+
+	public boolean isProcessDone() {
+		return isProcessDone;
+	}
+
+	public void setProcessDone(boolean isProcessDone) {
+		this.isProcessDone = isProcessDone;
+	}
+
+}
